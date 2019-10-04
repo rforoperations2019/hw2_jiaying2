@@ -1,1 +1,63 @@
+---
+title: "HW2"
+author: "Jiaying Shi"
+date: "10/3/2019"
+output: html_document
+---
+Everyone loves maps, they like to zoom to where they live, where they’ve been, and it often places valuable context about their neighborhood, country and world. Students will create a series of leaflet maps with data from polygons, polylines, dataframe (csv/xlsx) or point and/or raster data. Map data can be spatial data from any resource. (World Maps are fine)
+
+Each Map will include:
+
+A Basemap
+One map with a layer of points(Students may use either circles or markers)
+One map with a layer of lines
+One map with a layer of polygons
+One of the maps must contain a variable which changes of the color of the elements or the marker with an accompanying legend
+One map must contain a functioning layersControl() with two basemaps and two different layers (by name do not need to be a different type of layer)
 ```{r setup, include=FALSE}
+require(rgdal)
+require(leaflet)
+require(leaflet.extras)
+require(dplyr)
+require(readxl)
+require(stringr)
+```
+
+```{r}
+
+```
+
+#load Spatial Data
+
+```{r}
+permit <- read.csv("Building_Permit.csv")
+
+river <- readOGR("National_Wild_and_Scenic_River_Segments_Feature_Layer.geojson")
+
+```
+
+
+# Map with a layer of points
+
+```{r}
+pal.b <- colorFactor(c("#E69F00", "#1A9850"), c("Non-Residential", "Residential"))
+
+leaflet() %>%
+  addProviderTiles("OpenStreetMap.HOT") %>%
+  addCircleMarkers(data = permit, lng = ~Longitude, lat = ~Latitude, radius = 1,color = ~pal(PermitClassMapped)) %>%
+  addLegend(position = "topright" , pal = pal.b, values = permit$PermitClassMapped , title = "Building Permit Map")
+```
+
+# Map with a layer of lines
+
+```{r}
+pal.r <- colorFactor(palette = "RdYlBu", domain = river$CLASSIFICATION)
+  
+
+leaflet(data = river) %>%
+  addProviderTiles("Esri.WorldTerrain", options = providerTileOptions(noWrap = TRUE)) %>%
+  addPolylines(color = "#63CBD3") %>%
+  addLegend(position = "topright", pal = pal.r, values = ~CLASSIFICATION, title = "National Wild and Scenic River Segments")
+
+```
+
