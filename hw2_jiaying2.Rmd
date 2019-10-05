@@ -4,14 +4,7 @@ author: "Jiaying Shi"
 date: "10/3/2019"
 output: html_document
 ---
-Each Map will include:
 
-##A Basemap
-##One map with a layer of points(Students may use either circles or markers)
-##One map with a layer of lines
-One map with a layer of polygons
-##One of the maps must contain a variable which changes of the color of the elements or the marker with an accompanying legend
-##One map must contain a functioning layersControl() with two basemaps and two different layers (by name do not need to be a different type of layer)
 ```{r setup, include=FALSE}
 require(rgdal)
 require(leaflet)
@@ -69,7 +62,7 @@ leaflet() %>%
             pal = pal1, 
             values = permit$PermitClass, 
             title = "Permit Class") %>%
-  #ass layers control
+  #add layers control
   addLayersControl(
     baseGroups = c("HOT", "Topo", "Toner Lite"),
     options = layersControlOptions(collapsed = FALSE)
@@ -88,30 +81,17 @@ leaflet(data = alley) %>%
   addProviderTiles("OpenStreetMap.DE") %>%
   #add a layer of lines
   addPolylines(color = "blue")
-
 ```
 
-Polygon map
+Educational Services Districts in Washington State
 ```{r}
 #Load Data
-county <-readOGR("Counties Boundary Map.geojson")
+esd <-readOGR("/Users/jiayingshi/Rshiny/hw2_jiaying2/ESD Boundaries.geojson")
 
-
-pal2 <- colorNumeric("RdYlBu", county$total_population_2010)
-
-#Map
-leaflet(data = county) %>%
-  addProviderTiles("OpenStreetMap.DE") %>%
-  addPolygons(stroke = FALSE, 
-              smoothFactor = 0.2, 
-              fillOpacity = 1,
-              color = ~as.numeric(total_population_2010)
-    )%>%
-  addLegend("bottomright",
-            pal = pal2, 
-            values = ~total_population_2010, 
-            Title = "Total Population (2010)",
-            opacity = 1)
+#Polygon Map
+leaflet(esd) %>%
+  addProviderTiles("Hydda.Full") %>%
+  addPolygons()
 
 ```
 
