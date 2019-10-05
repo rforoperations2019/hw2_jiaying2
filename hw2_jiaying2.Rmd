@@ -4,16 +4,14 @@ author: "Jiaying Shi"
 date: "10/3/2019"
 output: html_document
 ---
-Everyone loves maps, they like to zoom to where they live, where they’ve been, and it often places valuable context about their neighborhood, country and world. Students will create a series of leaflet maps with data from polygons, polylines, dataframe (csv/xlsx) or point and/or raster data. Map data can be spatial data from any resource. (World Maps are fine)
-
 Each Map will include:
 
-A Basemap
-One map with a layer of points(Students may use either circles or markers)
-One map with a layer of lines
+##A Basemap
+##One map with a layer of points(Students may use either circles or markers)
+##One map with a layer of lines
 One map with a layer of polygons
-One of the maps must contain a variable which changes of the color of the elements or the marker with an accompanying legend
-One map must contain a functioning layersControl() with two basemaps and two different layers (by name do not need to be a different type of layer)
+##One of the maps must contain a variable which changes of the color of the elements or the marker with an accompanying legend
+##One map must contain a functioning layersControl() with two basemaps and two different layers (by name do not need to be a different type of layer)
 ```{r setup, include=FALSE}
 require(rgdal)
 require(leaflet)
@@ -23,41 +21,99 @@ require(readxl)
 require(stringr)
 ```
 
-```{r}
-
-```
-
-#load Spatial Data
+# Seattle Budiling Map with Permit Type
 
 ```{r}
+#Load Data
 permit <- read.csv("Building_Permit.csv")
 
+pal <- colorFactor(c("#E69F00", "#1A9850"), c("Non-Residential", "Residential"))
+
+#Map
+leaflet() %>%
+  addProviderTiles("OpenStreetMap.DE") %>%
+  #add a layer of points
+  addCircleMarkers(data = permit, 
+                   lng = ~Longitude, 
+                   lat = ~Latitude, 
+                   radius = 1,
+                   color = ~pal(PermitClassMapped),
+                  clusterOptions = markerClusterOptions()) %>%
+  #add legend
+  addLegend(position = "topright", 
+            pal = pal, 
+            values = permit$PermitClassMapped, 
+            title = "Permit Type")
+```
+
+# Seattle Budiling Map with Permit Class
+
+```{r}
+type <- unique(permit$PermitClass)
+
+pal1 <-colorFactor(palette = "RdYlBu", domain = type )
+
+#Map
+leaflet() %>%
+  addProviderTiles("OpenStreetMap.HOT", group = "HOT") %>%
+  addProviderTiles("OpenTopoMap", group = "Topo") %>%
+  addProviderTiles("Stamen.TonerLite", group = "Toner Lite") %>%
+  #add a layer of points
+  addCircleMarkers(data = permit, 
+                   lng = ~Longitude, 
+                   lat = ~Latitude, 
+                   radius = 1,
+                   color = ~pal1(type)) %>%
+  #add legend
+  addLegend(position = "bottomright", 
+            pal = pal1, 
+            values = permit$PermitClass, 
+            title = "Permit Class") %>%
+  #ass layers control
+  addLayersControl(
+    baseGroups = c("HOT", "Topo", "Toner Lite"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+
+```
+
+# National Wild and Scenic River Map
+
+```{r}
+#Load Data
 river <- readOGR("National_Wild_and_Scenic_River_Segments_Feature_Layer.geojson")
 
-```
-
-
-# Map with a layer of points
-
-```{r}
-pal.b <- colorFactor(c("#E69F00", "#1A9850"), c("Non-Residential", "Residential"))
-
-leaflet() %>%
-  addProviderTiles("OpenStreetMap.HOT") %>%
-  addCircleMarkers(data = permit, lng = ~Longitude, lat = ~Latitude, radius = 1,color = ~pal(PermitClassMapped)) %>%
-  addLegend(position = "topright" , pal = pal.b, values = permit$PermitClassMapped , title = "Building Permit Map")
-```
-
-# Map with a layer of lines
-
-```{r}
-pal.r <- colorFactor(palette = "RdYlBu", domain = river$CLASSIFICATION)
-  
-
+#Map
 leaflet(data = river) %>%
-  addProviderTiles("Esri.WorldTerrain", options = providerTileOptions(noWrap = TRUE)) %>%
-  addPolylines(color = "#63CBD3") %>%
-  addLegend(position = "topright", pal = pal.r, values = ~CLASSIFICATION, title = "National Wild and Scenic River Segments")
+  addProviderTiles("Stamen.Terrain", group = "Stamen") %>%
+  #add a layer of lines
+  addPolylines(color = "blue")
+
+```
+
+Polygon map
+```{r}
+#Load Data
+county <-readOGR("Counties Boundary Map.geojson")
+
+
+pal2 <- colorNumeric("RdYlBu", county$total_population_2010)
+
+#Map
+leaflet(data = county) %>%
+  addProviderTiles("OpenStreetMap.DE") %>%
+  addPolygons(stroke = FALSE, 
+              smoothFactor = 0.2, 
+              fillOpacity = 1,
+              color = ~as.numeric(total_population_2010)
+    )%>%
+  addLegend("bottomright",
+            pal = pal2, 
+            values = ~total_population_2010, 
+            Title = "Total Population (2010)",
+            opacity = 1)
+
+
 
 ```
 
