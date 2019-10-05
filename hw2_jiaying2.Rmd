@@ -77,15 +77,15 @@ leaflet() %>%
 
 ```
 
-# National Wild and Scenic River Map
+# Greater Downtown Alleys in Seattle
 
 ```{r}
 #Load Data
-river <- readOGR("National_Wild_and_Scenic_River_Segments_Feature_Layer.geojson")
+alley <- readOGR("Greater_Downtown_Alleys.geojson")
 
 #Map
-leaflet(data = river) %>%
-  addProviderTiles("Stamen.Terrain", group = "Stamen") %>%
+leaflet(data = alley) %>%
+  addProviderTiles("OpenStreetMap.DE") %>%
   #add a layer of lines
   addPolylines(color = "blue")
 
@@ -112,8 +112,6 @@ leaflet(data = county) %>%
             values = ~total_population_2010, 
             Title = "Total Population (2010)",
             opacity = 1)
-
-
 
 ```
 
